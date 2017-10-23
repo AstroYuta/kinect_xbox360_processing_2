@@ -1,25 +1,60 @@
-import processing.opengl.*;
 import SimpleOpenNI.*;
 SimpleOpenNI kinect;
 
 void setup() {
-  size(1024, 768, OPENGL);
+  size(640, 480);
+
   kinect = new SimpleOpenNI(this);
   kinect.enableDepth();
+
+  kinect.enableUser();
 }
 
-void draw(){
-  background(0);
+void draw() {
   kinect.update();
+  PImage depth = kinect.depthImage();
+  image(depth, 0, 0);
 
-  translate(width / 2, height / 2, -1000);
-  rotateX(radians(180));
+  // make User list
+  IntVector userList = new IntVector();
 
-  stroke(255);
+  // 検出されたユーザーのリストをVectorへ書き込む
+  kinect.getUsers(userList);
 
-  PVector[] depthPoints = kinect.depthMapRealWorld();
-  for(int i = 0; i < depthPoints.length; i++) {
-    PVector currentPoint = depthPoints[i];
-    point(currentPoint.x, currentPoint.y, currentPoint.z);
+  if (userList.size() > 0) {
+    int userId = userList.get(0);
+
+    if (kinect.isTrackingSkeleton(userId)) {
+      PVector rightHand = new PVector();
+      kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_HAND, rightHand);
+
+      PVector convertedRightHand = new PVector();
+      kinect.convertRealWorldToProjective(rightHand, convertedRightHand);
+
+      // 表示
+      float ellipseSize = map(convertedRightHand.z, 700, 2500, 50, 1);
+      float confidence = kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_HAND, rightHand);
+      if(confidence > 0.5) {
+      ellipse(convertedRightHand.x ,convertedRightHand.y, ellipseSize, ellipseSize);
+      }
+    }
   }
+}
+
+void onNewUser(SimpleOpenNI curContext, int userId)
+{
+  println("onNewUser - userId: " + userId);
+  println("\tstart tracking skeleton");
+
+  curContext.startTrackingSkeleton(userId);
+}
+
+void onLostUser(SimpleOpenNI curContext, int userId)
+{
+  println("onLostUser - userId: " + userId);
+}
+
+void onVisibleUser(SimpleOpenNI curContext, int userId)
+{
+  //println("onVisibleUser - userId: " + userId);
 }
