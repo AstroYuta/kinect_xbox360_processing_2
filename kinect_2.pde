@@ -2,6 +2,10 @@ import SimpleOpenNI.*;
 import processing.opengl.*;
 SimpleOpenNI kinect;
 
+// boolean tracking = false;
+int userID;
+int[] userMap;
+
 void setup() {
   size(640, 480, OPENGL);
   fill(255, 0, 0);
@@ -18,7 +22,6 @@ void setup() {
 void draw() {
   kinect.update();
   background(255);
-  image(kinect.rgbImage(), 0, 0);
 
   // make User list
   IntVector userList = new IntVector();
@@ -30,8 +33,19 @@ void draw() {
     int userId = userList.get(0);
 
     if (kinect.isTrackingSkeleton(userId)) {
+      PImage rgbImage = kinect.rgbImage();
+      rgbImage.loadPixels();
+      loadPixels();
+
+      userMap = kinect.userMap();
+      for (int i = 0; i < userMap.length; i++) {
+        if (userMap[i] != 0) {
+          pixels[i] = rgbImage.pixels[i];
+        }
+      }
       drawSkeleton(userId);
     }
+    updatePixels();
   }
 }
 
