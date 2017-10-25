@@ -15,10 +15,7 @@ void setup() {
 void draw() {
   kinect.update();
   background(255);
-
-  translate(width / 2, height / 2, 0);
-  rotateX(radians(180));
-
+  
   // make User list
   IntVector userList = new IntVector();
   // 検出されたユーザーのリストをVectorへ書き込む
@@ -35,26 +32,12 @@ void draw() {
       float confidence = kinect.getJointOrientationSkeleton(userId, SimpleOpenNI.SKEL_TORSO, orientation);
 
       println(confidence);
+      stroke(0, 255, 0);
+      strokeWeight(5);
       drawSkeleton(userId);
 
       pushMatrix();
-
-      // TORSOの場所へ移動
-      translate(position.x, position.y, position.z);
-
       applyMatrix(orientation);
-
-      // axis x
-      stroke(255, 0, 0);
-      strokeWeight(3);
-      line(0, 0, 0, 150, 0, 0);
-      // axis y
-      stroke(0, 255, 0);
-      line(0, 0, 0, 0, 150, 0);
-      // axis z
-      stroke(0, 0, 255);
-      line(0, 0, 0, 0, 0, 150);
-
       popMatrix();
     }
   }
@@ -86,9 +69,6 @@ void drawLimb(int userId, int jointType1, int jointType2) {
 
     confidence = kinect.getJointPositionSkeleton(userId, jointType1, jointPos1);
     confidence += kinect.getJointPositionSkeleton(userId, jointType2, jointPos2);
-
-    stroke(100);
-    strokeWeight(5);
     if(confidence > 1) {
       line(jointPos1.x, jointPos1.y, jointPos1.z, jointPos2.x, jointPos2.y, jointPos2.z);
     }
