@@ -3,18 +3,22 @@ import processing.opengl.*;
 SimpleOpenNI kinect;
 
 void setup() {
-  size(1028, 768, OPENGL);
+  size(640, 480, OPENGL);
   fill(255, 0, 0);
 
   kinect = new SimpleOpenNI(this);
   kinect.enableDepth();
   kinect.enableUser();
-  kinect.setMirror(true);
+  kinect.enableRGB();
+  // kinect.setMirror(true);
+
+  kinect.alternativeViewPointDepthToImage();
 }
 
 void draw() {
   kinect.update();
   background(255);
+  image(kinect.rgbImage(), 0, 0);
 
   // make User list
   IntVector userList = new IntVector();
